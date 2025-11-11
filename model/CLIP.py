@@ -25,5 +25,7 @@ with torch.no_grad():
         print(f"Processed {i + len(batch_paths)}/{len(image_paths)}")
 
 embeds = torch.cat(all_embeds, dim=0)
-torch.save(embeds, Path("photos/embeddings") / f"{choice}_image_embeds.pt")
-print(f"\n Saved {len(embeds)} embeddings to {Path("photos/embeddings")/f'{choice}_image_embeds.pt'}")
+out_dir = Path("photos/embeddings")
+out_dir.mkdir(parents=True, exist_ok=True)
+torch.save(embeds, out_dir / f"{choice}_image_embeds.pt")
+print(f"\n Saved {len(embeds)} embeddings to {out_dir/f'{choice}_image_embeds.pt'}")
