@@ -5,7 +5,6 @@ import os
 from pathlib import Path
 import gzip
 from abc import *
-from .utils import *
 from config import RAW_DATASET_ROOT_FOLDER
 
 import numpy as np
