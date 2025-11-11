@@ -7,23 +7,29 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(model_name)
 
 # Define a simple prompt
-prompt = "You are a recommendation ranker. Your task is to rank multiple "
-prompt += "candidate items based on their relevance to the user's preferences. "
-prompt += "Your input is a JSON object with the structure: "
-prompt += "{ 'user': {'history': [item1, item2, ...], 'context': 'user context'}, "
-prompt += "'candidates': [item1, item2, ...] }. "
-prompt += "Your output should be a JSON object with the structure: "
-prompt += "{ 'ranked_items': [item1, item2, ...] }. "
-prompt += "For example, if you are given the user history [item1, item2] and "
-prompt += "the candidates [item2, item3, item1], your output should be "
-prompt += "{ 'ranked_items': [item2, item1, item3] }. "
-
+prompt = """
+You are a calulator. Your task is to calculate the result of 1+1, what is your answer? 
+Answer: 
+"""
 # Tokenize the prompt
 inputs = tokenizer(prompt, return_tensors="pt", padding=True)
 
-# Generate the next tokens
+# Get the logits for the next token
 with torch.no_grad():
-    outputs = model.generate(**inputs, max_new_tokens=100)
+    outputs = model(**inputs)
+    logits = outputs.logits[0, -1]  # Get the logits for the last token position
+    
+# Get the top 5 most probable next tokens
+probs = torch.nn.functional.softmax(logits, dim=-1)
+topk_probs, topk_indices = torch.topk(probs, 5)
 
-# Print the generated response
-print(tokenizer.decode(outputs[0], skip_special_tokens=True))
+# Convert token IDs to tokens and their probabilities
+topk_tokens = [tokenizer.decode([idx]) for idx in topk_indices]
+topk_probs = topk_probs.tolist()
+
+# Print the top 5 most probable next tokens and their probabilities
+print("Top 5 most probable next tokens:")
+for token, prob in zip(topk_tokens, topk_probs):
+    # Replace newlines and other special characters for better display
+    token_display = token.replace('\n', '\\n').replace('\t', '\\t')
+    print(f"Token: {token_display:<20} Probability: {prob:.4f}")
