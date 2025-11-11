@@ -24,7 +24,7 @@ class ToysDataset(AbstractDataset):
 
     @classmethod
     def all_raw_file_names(cls):
-        return ['sequential_data.txt']
+        return ['sequential_data_reformatted.txt']
 
     def maybe_download_raw_dataset(self):
         pass
@@ -72,7 +72,7 @@ class ToysDataset(AbstractDataset):
 
     def load_ratings_df(self):
         folder_path = self._get_rawdata_folder_path()
-        file_path = folder_path.joinpath('sequential_data.txt')
+        file_path = folder_path.joinpath('sequential_data_reformatted.txt')
         df = pd.read_csv(file_path, header=None, sep=' ')
         df.columns = ['uid', 'sid']
         return df
