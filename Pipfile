@@ -5,8 +5,15 @@ name = "pypi"
 
 [packages]
 torch = "*"
+pillow = "*"
+transformers = "*"
+numpy = "*"
+wandb = "*"
+pytorch-lightning = "*"
+pandas = "*"
+tensorboard = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.13"
+python_version = "3.12"

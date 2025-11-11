@@ -7,8 +7,7 @@ import torch.utils.data as data_utils
 
 
 def worker_init_fn(worker_id):
-    # Use a fixed base seed plus worker_id for reproducibility
-    base_seed = 42  # You can change this to any integer value
+    base_seed = 42 
     worker_seed = base_seed + worker_id
     random.seed(worker_seed)
     np.random.seed(worker_seed)
