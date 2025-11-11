@@ -1,6 +1,4 @@
 from .base import AbstractDataset
-from .utils import *
-
 
 import pickle
 
