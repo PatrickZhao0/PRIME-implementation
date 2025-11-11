@@ -7,10 +7,8 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(model_name)
 
 # Define a simple prompt
-prompt = """
-You are a calulator. Your task is to calculate the result of 1+1, what is your answer? 
-Answer: 
-"""
+prompt = 'You are a calulator. Your task is to calculate the result of 1+1, what is your answer? Answer: '
+
 # Tokenize the prompt
 inputs = tokenizer(prompt, return_tensors="pt", padding=True)
 
