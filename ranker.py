@@ -1,6 +1,6 @@
 
 from transformers import AutoTokenizer, AutoModelForCausalLM
-
+import torch
 # Load the Qwen2.5-1.5B-Instruct model
 model_name = "Qwen/Qwen2.5-1.5B-Instruct"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
