@@ -1,8 +1,6 @@
 import torch
 import argparse
-from config import *
 from model import LRU
-from dataloader import dataloader_factory
 
 def load_model(args, model_path):
     model = LRU(args)
