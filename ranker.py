@@ -36,7 +36,7 @@ messages = [
     {"role": "user", "content": (
         "Based on the user's browsing history and a collection of candidate"
         "items (both provided in JSON format), recommend the most suitable"
-        "item by specifying its index letter."
+        "item by specifying its index letter. (Answer letter only, no other text)"
         "\n\n"
         f"Browsing history: {browsing_history}"
         "\n\n"
