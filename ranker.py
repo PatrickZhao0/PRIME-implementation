@@ -1,33 +1,65 @@
 
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
-# Load the Qwen2.5-1.5B-Instruct model
+import json
+
 model_name = "Qwen/Qwen2.5-1.5B-Instruct"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(model_name)
 
-# Define a simple prompt
-prompt = 'You are a calulator. Your task is to calculate the result of 1+1, what is your answer? Answer: '
+browsing_history = json.dumps({
+    "title": "Hand Cream",
+    "category": "Moisturizers",
+    "image": "<image>",
+    "price": 10.99
+})
+candidate_items = json.dumps([
+    {
+       "index": "A",
+       "title": "Skin Care Bundle", 
+       "price": 29.99,
+       "category": "Moisturizers",
+       "image": "<image>"
+    },
+    {
+        "index": "B",
+        "title": "5 in 1 Cream",
+        "category": "Moisturizers",
+        "image": "<image>",
+        "price": 26.99
+    }
+])
+messages = [
+    {"role": "system", "content": (
+        "You are a helpful assistant."
+    )},
+    {"role": "user", "content": (
+        "Based on the user's browsing history and a collection of candidate"
+        "items (both provided in JSON format), recommend the most suitable"
+        "item by specifying its index letter."
+        "\n\n"
+        f"Browsing history: {browsing_history}"
+        "\n\n"
+        f"Candidate items: {candidate_items}"
+    )},
+]
 
-# Tokenize the prompt
-inputs = tokenizer(prompt, return_tensors="pt", padding=True)
+prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+inputs = tokenizer(prompt, return_tensors="pt")
 
-# Get the logits for the next token
 with torch.no_grad():
-    outputs = model(**inputs)
-    logits = outputs.logits[0, -1]  # Get the logits for the last token position
-    
-# Get the top 5 most probable next tokens
+    outputs = model(**inputs, output_hidden_states=False, output_attentions=False)
+    logits = outputs.logits[0, -1]
 probs = torch.nn.functional.softmax(logits, dim=-1)
 topk_probs, topk_indices = torch.topk(probs, 5)
 
-# Convert token IDs to tokens and their probabilities
+
 topk_tokens = [tokenizer.decode([idx]) for idx in topk_indices]
 topk_probs = topk_probs.tolist()
 
-# Print the top 5 most probable next tokens and their probabilities
-print("Top 5 most probable next tokens:")
+print("\nPrompt:")
+print(prompt)
+print("\nTop 5 most probable next tokens:")
 for token, prob in zip(topk_tokens, topk_probs):
-    # Replace newlines and other special characters for better display
     token_display = token.replace('\n', '\\n').replace('\t', '\\t')
     print(f"Token: {token_display:<20} Probability: {prob:.4f}")

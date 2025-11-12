@@ -70,18 +70,15 @@ class LRUModel(nn.Module):
         self.bias = torch.nn.Parameter(torch.zeros(args.num_items + 1))
 
     def forward(self, x, embedding_weight, mask, labels=None):
-        # left padding to the power of 2
         seq_len = x.size(1)
         log2_L = int(np.ceil(np.log2(seq_len)))
         x = F.pad(x, (0, 0, 2 ** log2_L - x.size(1), 0, 0, 0))
         mask_ = F.pad(mask, (2 ** log2_L - mask.size(1), 0, 0, 0))
 
-        # LRU blocks with pffn
         for lru_block in self.lru_blocks:
             x = lru_block.forward(x, mask_)
-        x = x[:, -seq_len:]  # B x L x D (64)
+        x = x[:, -seq_len:]
         
-        # prediction layer
         if self.args.dataset_code != 'xlong':
             scores = torch.matmul(x, embedding_weight.permute(1, 0)) + self.bias
             return scores, None
@@ -133,7 +130,6 @@ class LRULayer(nn.Module):
         self.hidden_size = 2 * d_model
         self.use_bias = use_bias
 
-        # init nu, theta, gamma
         u1 = torch.rand(self.hidden_size)
         u2 = torch.rand(self.hidden_size)
         nu_log = torch.log(-0.5 * torch.log(u1 * (r_max ** 2 - r_min ** 2) + r_min ** 2))
@@ -142,23 +138,18 @@ class LRULayer(nn.Module):
         gamma_log = torch.log(torch.sqrt(1 - torch.abs(diag_lambda) ** 2))
         self.params_log = nn.Parameter(torch.vstack((nu_log, theta_log, gamma_log)))
 
-        # Init B, C, D
         self.in_proj = nn.Linear(self.embed_size, self.hidden_size, bias=use_bias).to(torch.cfloat)
         self.out_proj = nn.Linear(self.hidden_size, self.embed_size, bias=use_bias).to(torch.cfloat)
-        # self.out_vector = nn.Parameter(torch.rand(self.embed_size))
         self.out_vector = nn.Identity()
         
-        # Dropout and layer norm
         self.dropout = nn.Dropout(p=dropout)
         self.layer_norm = nn.LayerNorm(self.embed_size)
 
     def lru_parallel(self, i, h, lamb, mask, B, L, D):
-        # Parallel algorithm, see: https://kexue.fm/archives/9554#%E5%B9%B6%E8%A1%8C%E5%8C%96
-        # The original implementation is slightly slower and does not consider 0 padding
         l = 2 ** i
-        h = h.reshape(B * L // l, l, D)  # (B, L, D) -> (B * L // 2, 2, D)
-        mask_ = mask.reshape(B * L // l, l)  # (B, L) -> (B * L // 2, 2)
-        h1, h2 = h[:, :l // 2], h[:, l // 2:]  # Divide data in half
+        h = h.reshape(B * L // l, l, D)
+        mask_ = mask.reshape(B * L // l, l)
+        h1, h2 = h[:, :l // 2], h[:, l // 2:]
 
         if i > 1: lamb = torch.cat((lamb, lamb * lamb[-1]), 0)
         h2 = h2 + lamb * h1[:, -1:] * mask_[:, l // 2 - 1:l // 2].unsqueeze(-1)
@@ -166,18 +157,16 @@ class LRULayer(nn.Module):
         return h, lamb
 
     def forward(self, x, mask):
-        # compute bu and lambda
         nu, theta, gamma = torch.exp(self.params_log).split((1, 1, 1))
         lamb = torch.exp(torch.complex(-nu, theta))
         h = self.in_proj(x.to(torch.cfloat)) * gamma  # bu
         
-        # compute h in parallel
         log2_L = int(np.ceil(np.log2(h.size(1))))
         B, L, D = h.size(0), h.size(1), h.size(2)
         for i in range(log2_L):
             h, lamb = self.lru_parallel(i + 1, h, lamb, mask, B, L, D)
         x = self.dropout(self.out_proj(h).real) + self.out_vector(x)
-        return self.layer_norm(x)  # residual connection introduced above 
+        return self.layer_norm(x)
     
 
 class PositionwiseFeedForward(nn.Module):
