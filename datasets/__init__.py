@@ -17,6 +17,7 @@ def dataset_factory(args):
 
 def metadict_factory(args):
     dataset = DATASETS[args.dataset_code]
+    print(dataset)
     return dataset.load_metadict()
 
 def imagedict_factory(args):
