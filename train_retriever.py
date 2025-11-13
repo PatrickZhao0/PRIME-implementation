@@ -59,6 +59,7 @@ def predict(model, sequences, args, topk=10):
 
 def load_model_for_prediction(model_path, args):
     """Load a trained model for prediction."""
+    dataloader_factory(args)
     model = LRU(args)
     checkpoint = torch.load(model_path, map_location=args.device)
     model.load_state_dict(checkpoint['model_state_dict'])
@@ -85,7 +86,6 @@ if __name__ == "__main__":
             [5, 6, 7, 8, 9],  # Example sequence 2
         ]
         results = predict(model, test_sequences, args, topk=3)
-        
         for i, (indices, scores) in enumerate(results):
             print(f"\nSequence {i+1} predictions:")
             for idx, score in zip(indices, scores):
