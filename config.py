@@ -116,5 +116,8 @@ parser.add_argument('--bert_mask_prob', type=float, default=None)
 
 ################
 
+parser.add_argument('--mode', type=str, default='train', choices=['train', 'predict'])
+
+
 
 args = parser.parse_args()
