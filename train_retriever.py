@@ -82,7 +82,7 @@ if __name__ == "__main__":
         
         print("\nExample prediction:")
         test_sequences = [
-            [1, 2, 3, 4, 5, 7, 8],    # Example sequence 1
+            [1, 2, 322, 4, 53, 7, 8,3,  84, 223],    # Example sequence 1
             [5, 6, 7, 8, 9],  # Example sequence 2
         ]
         results = predict(model, test_sequences, args, topk=3)
