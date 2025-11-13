@@ -14,3 +14,11 @@ DATASETS = {
 def dataset_factory(args):
     dataset = DATASETS[args.dataset_code]
     return dataset(args)
+
+def metadict_factory(args):
+    dataset = DATASETS[args.dataset_code]
+    return dataset.load_metadict()
+
+def imagedict_factory(args):
+    dataset = DATASETS[args.dataset_code]
+    return dataset.load_imagedict()
