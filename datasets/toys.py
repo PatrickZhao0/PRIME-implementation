@@ -91,7 +91,8 @@ class ToysDataset(AbstractDataset):
         
         return user2id, item2id, id2item
     
-    def load_metadict(self, item2id):
+    def load_metadict(self):
+        _, item2id, _ = self.load_datamap()
         folder_path = self._get_rawdata_folder_path()
         def parse(path):
             g = gzip.open(path, 'r')
@@ -106,7 +107,8 @@ class ToysDataset(AbstractDataset):
                 continue
         return meta_dict
     
-    def load_imagedict(self, image_root, item2id):
+    def load_imagedict(self):
+        _, item2id, _ = self.load_datamap()
         folder_path = self._get_rawdata_folder_path()
         def load_pickle(filename):
             with open(filename, "rb") as f:
@@ -115,7 +117,5 @@ class ToysDataset(AbstractDataset):
         mapped_dict = {} 
         image_dict = load_pickle(folder_path.joinpath('item2img_dict.pkl'))
         for k, v in image_dict.items():  # should match exactly
-            mapped_dict[item2id[k]] = Path(image_root).joinpath(
-                self.code(), v.split('/')[-1])
+            mapped_dict[item2id[k]] = v.split('/')[-1]
         return mapped_dict
-
