@@ -6,8 +6,5 @@ if __name__ == "__main__":
     metadict = metadict_factory(args)
     imagedict = imagedict_factory(args)
 
-    for k, v in metadict.items()[:10]:
-        print(k, v)
-    for k, v in imagedict.items()[:10]:
-        print(k, v)
-
+    print (metadict[1])
+    print (imagedict[1])
