@@ -42,7 +42,7 @@ def predict(model, sequences, args, topk=10):
     input_tensor = torch.tensor(padded_seqs, dtype=torch.long).to(args.device)
     
     with torch.no_grad():
-        logits = model(input_tensor, None)
+        logits, _ = model(input_tensor, None)
         last_logits = logits[:, -1, :]  
         
         topk_scores, topk_indices = torch.topk(last_logits, k=topk, dim=-1)
