@@ -135,24 +135,6 @@ class SASValidDataset(data_utils.Dataset):
         seq = [0] * padding_len + seq
 
         return torch.LongTensor(seq), torch.LongTensor(answer)
-        
-        # cur_idx, negs = 0, []
-        # samples = self.rng.randint(1, self.args.num_items+1, size=5*self.args.negative_sample_size)
-        # while len(negs) < self.args.negative_sample_size:
-        #     item = samples[cur_idx]
-        #     cur_idx += 1
-        #     if item in seq or item in answer: continue
-        #     else: negs.append(item)
-
-        # candidates = answer + negs
-        # labels = [1] * len(answer) + [0] * len(negs)
-
-        # seq = seq[-self.max_len:]
-        # padding_len = self.max_len - len(seq)
-        # seq = [0] * padding_len + seq
-
-        # return torch.LongTensor(seq), torch.LongTensor(candidates), torch.LongTensor(labels)
-
 
 class SASTestDataset(data_utils.Dataset):
     def __init__(self, args, u2seq, u2val, u2answer, max_len, rng):
@@ -178,20 +160,3 @@ class SASTestDataset(data_utils.Dataset):
         seq = [0] * padding_len + seq
 
         return torch.LongTensor(seq), torch.LongTensor(answer)
-
-        # cur_idx, negs = 0, []
-        # samples = self.rng.randint(1, self.args.num_items+1, size=5*self.args.negative_sample_size)
-        # while len(negs) < self.args.negative_sample_size:
-        #     item = samples[cur_idx]
-        #     cur_idx += 1
-        #     if item in seq or item in answer: continue
-        #     else: negs.append(item)
-        
-        # candidates = answer + negs
-        # labels = [1] * len(answer) + [0] * len(negs)
-
-        # seq = seq[-self.max_len:]
-        # padding_len = self.max_len - len(seq)
-        # seq = [0] * padding_len + seq
-
-        # return torch.LongTensor(seq), torch.LongTensor(candidates), torch.LongTensor(labels)
