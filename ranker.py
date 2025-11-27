@@ -2,33 +2,60 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 import json
+from config import *
+from dataloader import dataloader_factory
+from retriever import load_model_for_prediction, predict
 
 model_name = "Qwen/Qwen2.5-1.5B-Instruct"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(model_name)
 
-browsing_history = json.dumps({
-    "title": "Hand Cream",
-    "category": "Moisturizers",
-    "image": "<image>",
-    "price": 10.99
-})
+set_template(args)
+metadict = metadict_factory(args)
+imagedict = imagedict_factory(args)
+model = load_model_for_prediction(args.model_path, args)
+
+
+browsing_history_raw = [1, 2, 322, 4, 53, 7, 8, 3, 84, 223]
+candidate_items_raw = [2, 4, 5, 6, 7]
+
+browsing_history = json.dumps([
+    {
+        **metadict[iid],
+        "image": "<image>"
+    } for i, iid in enumerate(browsing_history_raw)
+])
+
 candidate_items = json.dumps([
     {
-       "index": "A",
-       "title": "Skin Care Bundle", 
-       "price": 29.99,
-       "category": "Moisturizers",
-       "image": "<image>"
-    },
-    {
-        "index": "B",
-        "title": "5 in 1 Cream",
-        "category": "Moisturizers",
-        "image": "<image>",
-        "price": 26.99
-    }
+        "index": str(i + 65),
+        **metadict[iid],
+        "image": "<image>"
+    } for i, iid in enumerate(candidate_items_raw)
 ])
+
+# browsing_history = json.dumps({
+#     "title": "Hand Cream",
+#     "category": "Moisturizers",
+#     "image": "<image>",
+#     "price": 10.99
+# })
+# candidate_items = json.dumps([
+#     {
+#        "index": "A",
+#        "title": "Skin Care Bundle", 
+#        "price": 29.99,
+#        "category": "Moisturizers",
+#        "image": "<image>"
+#     },
+#     {
+#         "index": "B",
+#         "title": "5 in 1 Cream",
+#         "category": "Moisturizers",
+#         "image": "<image>",
+#         "price": 26.99
+#     }
+# ])
 messages = [
     {"role": "system", "content": (
         "You are a helpful assistant."

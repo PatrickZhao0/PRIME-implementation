@@ -79,10 +79,9 @@ if __name__ == "__main__":
         print(f"Loading model from {args.model_path}...")
         model = load_model_for_prediction(args.model_path, args)
         print("Model loaded successfully!")
-        
         print("\nExample prediction:")
         test_sequences = [
-            [1, 2, 322, 4, 53, 7, 8,3,  84, 223],
+            [1, 2, 322, 4, 53, 7, 8, 3, 84, 223],
         ]
         results = predict(model, test_sequences, args, topk=10)
         for i, (indices, scores) in enumerate(results):
